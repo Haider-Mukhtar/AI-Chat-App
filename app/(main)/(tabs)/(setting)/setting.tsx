@@ -1,7 +1,8 @@
-import { clientDb } from "@/lib/clientDb";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { clientDb } from "@/lib/clientDb";
 
-export default function Index() {
+const Setting = () => {
   const handleLogout = async () => {
     try {
       await clientDb.auth.signOut();
@@ -12,13 +13,15 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
+      <Text style={styles.title}>Setting</Text>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
-}
+};
+
+export default Setting;
 
 const styles = StyleSheet.create({
   container: {
