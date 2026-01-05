@@ -1,52 +1,28 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import React from "react";
-import { clientDb } from "@/lib/clientDb";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Setting = () => {
-  const handleLogout = async () => {
-    try {
-      await clientDb.auth.signOut();
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Setting</Text>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 export default Setting;
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 30,
-  },
-  logoutButton: {
-    width: "60%",
-    height: 50,
-    backgroundColor: "#FF3B30",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  logoutButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
   },
 });
