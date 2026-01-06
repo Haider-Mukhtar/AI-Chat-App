@@ -40,6 +40,9 @@ export const colors = {
     white: "#FFFFFF",
     whiteTransparent: "rgba(255, 255, 255, 0.95)",
     whiteTransparent20: "rgba(255, 255, 255, 0.2)",
+    modalBackground: "#bfdbfe",
+    green: "#28a745",
+    diable: "#99999950"
   },
 
   // Shadow colors

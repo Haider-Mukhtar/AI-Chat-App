@@ -1,6 +1,6 @@
 import { colors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -49,6 +49,30 @@ export default function ChatLayout() {
                   name="ellipsis-horizontal"
                   size={24}
                   color={colors.primary.deepBlue}
+                />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="input-modal"
+          options={{
+            title: "",
+            headerTitle: "",
+            presentation: "modal",
+            headerBackButtonDisplayMode: "minimal",
+            animation: "slide_from_bottom",
+            gestureDirection: "vertical",
+            sheetGrabberVisible: true,
+            headerLeft: () => (
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={styles.headerBtn}
+              >
+                <Ionicons
+                  name="arrow-back"
+                  size={24}
+                  color={colors.primary.darkSlate}
                 />
               </TouchableOpacity>
             ),
