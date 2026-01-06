@@ -2,9 +2,16 @@ import "react-native-get-random-values";
 import { Stack } from "expo-router";
 import { View, ActivityIndicator, Text } from "react-native";
 import { clientDb } from "@/lib/clientDb";
+import Toast from 'react-native-toast-message';
+import toastConfig from "@/components/toast/toastConfig";
 
 export default function RootLayout() {
-  return <RootLayoutContent />;
+  return (
+    <>
+      <RootLayoutContent />
+      <Toast config={toastConfig} />
+    </>
+  );
 }
 
 function RootLayoutContent() {

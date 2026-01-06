@@ -9,14 +9,65 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import Toast from "react-native-toast-message";
 
 const InputModal = () => {
   const inputRef = useRef<TextInput>(null);
   const [text, setText] = useState<string>("");
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Permissions
+  const requestPermissions = async () => {
+    const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+    const libraryPermission =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    return {
+      camera: cameraPermission.status === "granted",
+      library: libraryPermission.status === "granted",
+    };
+  };
+
+  // Image Picker (max 3)
+  const pickImageFromGallery = async () => {
+    if (images.length >= 3) {
+      Toast.show({
+        type: "info",
+        text1: "Maximum Images",
+        text2: "You can only select up to 3 images.",
+      });
+      return;
+    }
+
+    const permissions = await requestPermissions();
+    if (!permissions.library) {
+      Toast.show({
+        type: "info",
+        text1: "Permission Required",
+        text2: "Please grant media library permission to select images.",
+      });
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsMultipleSelection: true,
+      quality: 1,
+      selectionLimit: 3 - images.length,
+    });
+
+    if (!result.canceled && result.assets) {
+      const newImages = result.assets
+        .map((asset) => asset.uri)
+        .slice(0, 3 - images.length);
+      setImages([...images, ...newImages]);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
