@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -11,6 +12,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Toast from "react-native-toast-message";
+import { Image } from "expo-image";
 
 const InputModal = () => {
   const inputRef = useRef<TextInput>(null);
@@ -22,13 +24,18 @@ const InputModal = () => {
   }, []);
 
   // Permissions
-  const requestPermissions = async () => {
+  const requestCameraPermissions = async () => {
     const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+
+    return {
+      camera: cameraPermission.status === "granted",
+    };
+  };
+  const requestLibraryPermissions = async () => {
     const libraryPermission =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     return {
-      camera: cameraPermission.status === "granted",
       library: libraryPermission.status === "granted",
     };
   };
@@ -44,7 +51,7 @@ const InputModal = () => {
       return;
     }
 
-    const permissions = await requestPermissions();
+    const permissions = await requestLibraryPermissions();
     if (!permissions.library) {
       Toast.show({
         type: "info",
@@ -69,6 +76,40 @@ const InputModal = () => {
     }
   };
 
+  const pickImageFromCamera = async () => {
+    if (images.length >= 3) {
+      Toast.show({
+        type: "info",
+        text1: "Maximum Images",
+        text2: "You can only select up to 3 images.",
+      });
+      return;
+    }
+
+    const permissions = await requestCameraPermissions();
+    if (!permissions.camera) {
+      Toast.show({
+        type: "info",
+        text1: "Permission Required",
+        text2: "Please grant camera permission to take photos.",
+      });
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets) {
+      setImages([...images, result.assets[0].uri]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.keyboardAvoiding}
@@ -82,29 +123,61 @@ const InputModal = () => {
           placeholderTextColor={colors.text.placeholder}
           multiline
           maxLength={1000}
-          numberOfLines={9}
+          numberOfLines={images.length > 0 ? 7 : 9}
           value={text}
           onChangeText={setText}
           style={styles.textInput}
         />
 
         {/* Action Btns */}
-        <View style={styles.btnsContainer}>
-          <View style={styles.leftContainer}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Ionicons name="image" size={24} color={colors.primary.white} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-              <Ionicons name="camera" size={24} color={colors.primary.white} />
+        <View>
+          {/* Selected Images */}
+          {images.length > 0 && (
+            <ScrollView
+              horizontal
+              style={styles.imagePreviewContainer}
+              showsHorizontalScrollIndicator={false}
+            >
+              {images.map((uri, index) => (
+                <View key={index} style={styles.imageWrapper}>
+                  <Image source={{ uri }} style={styles.imagePreview} />
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={() => removeImage(index)}
+                  >
+                    <Ionicons name="close" size={18} color="white" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          )}
+          <View style={styles.btnsContainer}>
+            <View style={styles.leftContainer}>
+              <TouchableOpacity
+                onPress={pickImageFromGallery}
+                style={styles.iconButton}
+              >
+                <Ionicons name="image" size={24} color={colors.primary.white} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={pickImageFromCamera}
+                style={styles.iconButton}
+              >
+                <Ionicons
+                  name="camera"
+                  size={24}
+                  color={colors.primary.white}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.sendButton, !text && styles.disabledButton]}
+              disabled={!text}
+            >
+              <Ionicons name="send" size={24} color="white" />
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={[styles.sendButton, !text && styles.disabledButton]}
-            disabled={!text}
-          >
-            <Ionicons name="send" size={24} color="white" />
-          </TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -172,5 +245,29 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: colors.background.diable,
+  },
+  imagePreviewContainer: {
+    maxHeight: 100,
+    marginBottom: 8,
+  },
+  imageWrapper: {
+    position: "relative",
+    marginRight: 8,
+  },
+  imagePreview: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
